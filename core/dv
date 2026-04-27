@@ -1,0 +1,134 @@
+#!/bin/bash
+# Divoom CLI. Two modes:
+#   1. Daemon running (recommended): commands are sent via FIFO -> no BT notifications per command.
+#   2. No daemon: one-shot, connects+disconnects each time (BT notifications will flash).
+#
+# Usage:
+#   ./dv start <MAC>                  # launch persistent daemon (one-time BT notification)
+#   ./dv start-custom <MAC> <FileId> <rawfile> <DeviceId> [delay_ms]
+#   ./dv start-custom-multi <MAC> <DeviceId> <delay_ms> <FileId=rawfile>...
+#   ./dv stop                         # kill daemon gracefully
+#   ./dv <cmd> <args...>              # send command (uses FIFO if daemon running, else one-shot)
+#   ./dv rawfile <path> [delay_ms]     # send many raw frames from one file as one batch
+#   ./dv custom <FileId> <DeviceId> [CustomPageIndex] [CustomId]
+#   ./dv oneshot <MAC> <cmd> <args>   # force one-shot mode regardless of daemon
+#
+# Examples:
+#   ./dv start "$DIVOOM_MAC"     # or pass the literal MAC, e.g. AA:BB:CC:DD:EE:FF
+#   ./dv brightness 10
+#   ./dv face 3
+#   ./dv stop
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+APP="$HERE/divoom-send.app"
+LOG=/tmp/divoom-send.log
+FIFO=/tmp/divoom.fifo
+
+case "${1:-}" in
+  start)
+    MAC="${2:?usage: dv start <MAC>}"
+    if [ -p "$FIFO" ]; then
+      echo "daemon already running (FIFO exists at $FIFO). Use 'dv stop' first." >&2
+      exit 1
+    fi
+    : > "$LOG"
+    # -g = don't activate/foreground. Bundle stays alive because Swift never returns from runDaemon.
+    open -g "$APP" --args "$MAC" daemon
+    # Wait up to 10s for the daemon to advertise readiness (BT handshake + SDP can be slow).
+    for i in $(seq 1 100); do
+      if [ -p "$FIFO" ] && grep -q "daemon: listening" "$LOG" 2>/dev/null; then
+        echo "daemon started (pid $(pgrep -n divoom-send)). log: tail -f $LOG"
+        exit 0
+      fi
+      sleep 0.1
+    done
+    echo "daemon didn't start in time. log:" >&2
+    cat "$LOG" >&2
+    exit 1
+    ;;
+  start-custom)
+    MAC="${2:?usage: dv start-custom <MAC> <FileId> <rawfile> <DeviceId> [delay_ms]}"
+    FILE_ID="${3:?usage: dv start-custom <MAC> <FileId> <rawfile> <DeviceId> [delay_ms]}"
+    RAWFILE="${4:?usage: dv start-custom <MAC> <FileId> <rawfile> <DeviceId> [delay_ms]}"
+    DEVICE_ID="${5:?usage: dv start-custom <MAC> <FileId> <rawfile> <DeviceId> [delay_ms]}"
+    DELAY_MS="${6:-40}"
+    if [ -p "$FIFO" ]; then
+      echo "daemon already running (FIFO exists at $FIFO). Use 'dv stop' first." >&2
+      exit 1
+    fi
+    : > "$LOG"
+    # -g = don't activate/foreground. Bundle stays alive because Swift never returns from runDaemon.
+    open -g "$APP" --args "$MAC" daemon-custom "$FILE_ID" "$RAWFILE" "$DEVICE_ID" "$DELAY_MS"
+    # Wait up to 10s for the daemon to advertise readiness (BT handshake + SDP can be slow).
+    for i in $(seq 1 100); do
+      if [ -p "$FIFO" ] && grep -q "daemon: listening" "$LOG" 2>/dev/null; then
+        echo "custom daemon started (pid $(pgrep -n divoom-send)). log: tail -f $LOG"
+        exit 0
+      fi
+      sleep 0.1
+    done
+    echo "custom daemon didn't start in time. log:" >&2
+    cat "$LOG" >&2
+    exit 1
+    ;;
+  start-custom-multi)
+    MAC="${2:?usage: dv start-custom-multi <MAC> <DeviceId> <delay_ms> <FileId=rawfile>...}"
+    DEVICE_ID="${3:?usage: dv start-custom-multi <MAC> <DeviceId> <delay_ms> <FileId=rawfile>...}"
+    DELAY_MS="${4:?usage: dv start-custom-multi <MAC> <DeviceId> <delay_ms> <FileId=rawfile>...}"
+    shift 4
+    if [ "$#" -lt 1 ]; then
+      echo "usage: dv start-custom-multi <MAC> <DeviceId> <delay_ms> <FileId=rawfile>..." >&2
+      exit 64
+    fi
+    if [ -p "$FIFO" ]; then
+      echo "daemon already running (FIFO exists at $FIFO). Use 'dv stop' first." >&2
+      exit 1
+    fi
+    : > "$LOG"
+    # -g = don't activate/foreground. Bundle stays alive because Swift never returns from runDaemon.
+    open -g "$APP" --args "$MAC" daemon-custom-multi "$DEVICE_ID" "$DELAY_MS" "$@"
+    # Wait up to 10s for the daemon to advertise readiness (BT handshake + SDP can be slow).
+    for i in $(seq 1 100); do
+      if [ -p "$FIFO" ] && grep -q "daemon: listening" "$LOG" 2>/dev/null; then
+        echo "custom multi daemon started (pid $(pgrep -n divoom-send)). log: tail -f $LOG"
+        exit 0
+      fi
+      sleep 0.1
+    done
+    echo "custom multi daemon didn't start in time. log:" >&2
+    cat "$LOG" >&2
+    exit 1
+    ;;
+  stop)
+    if [ ! -p "$FIFO" ]; then
+      echo "daemon not running (no FIFO)"
+      exit 0
+    fi
+    echo "quit" > "$FIFO"
+    sleep 0.3
+    echo "stopped"
+    ;;
+  oneshot)
+    shift
+    MAC="${1:?usage: dv oneshot <MAC> <cmd> <args>}"
+    shift
+    : > "$LOG"
+    open -W "$APP" --args "$MAC" "$@" || true
+    cat "$LOG"
+    ;;
+  "")
+    sed -n '3,18p' "$0"
+    exit 64
+    ;;
+  *)
+    # Send command to daemon if running.
+    if [ -p "$FIFO" ]; then
+      echo "$*" > "$FIFO"
+    else
+      echo "no daemon running. Start one with: dv start <MAC>" >&2
+      echo "or use: dv oneshot <MAC> $*" >&2
+      exit 1
+    fi
+    ;;
+esac

@@ -1,0 +1,20 @@
+# Personal device/account configuration — copy personal.env.example to personal.env and fill in your values.
+personal.env
+*.personal.env
+.envrc.local
+
+# Personal project notes (not for publication)
+docs/ONBOARDING.md
+docs/SETUP.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+
+# Build artifacts
+core/divoom-send.app/
+core/divoom-send
