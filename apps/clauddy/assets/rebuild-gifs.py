@@ -29,10 +29,14 @@ SNAP = {(41, 44, 49), (0, 255, 0)}  # second near-black + decoder green-screen a
 
 def rebuild(gif: Path) -> None:
     im = Image.open(gif)
-    duration = im.info.get("duration", 100)
 
     rgb_frames: list[Image.Image] = []
+    durations: list[int] = []
     for f in ImageSequence.Iterator(im):
+        # capture the per-frame duration so PIL's dedup-on-save (which extends
+        # a frame's duration to absorb consecutive duplicates) survives a
+        # second rebuild without collapsing back to the first frame's value
+        durations.append(int(f.info.get("duration", 100)))
         # composite transparent pixels onto the canonical background so frames
         # with alpha (Aseprite's default export) don't render true-black holes
         rgba = f.convert("RGBA")
@@ -64,7 +68,7 @@ def rebuild(gif: Path) -> None:
         gif,
         save_all=True,
         append_images=indexed[1:],
-        duration=duration,
+        duration=durations,
         loop=0,
         optimize=False,
         disposal=2,

@@ -8,6 +8,8 @@ Reverse-engineered toolkit for the **Divoom MiniToo** pixel display, and
 Display three states on the device: working, waiting for your feedback,
 chilling.
 
+<video src="apps/clauddy/assets/demo.mp4" controls width="320"></video>
+
 | working | alerting | chilling |
 | :---: | :---: | :---: |
 | ![working](apps/clauddy/assets/working.gif) | ![alerting](apps/clauddy/assets/alerting.gif) | ![chilling](apps/clauddy/assets/chilling.gif) |
