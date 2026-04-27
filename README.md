@@ -8,7 +8,6 @@ Reverse-engineered toolkit for the **Divoom MiniToo** pixel display, and
 Display three states on the device: working, waiting for your feedback,
 chilling.
 
-<video src="apps/clauddy/assets/demo.mp4" controls width="320"></video>
 
 | working | alerting | chilling |
 | :---: | :---: | :---: |
@@ -17,6 +16,11 @@ chilling.
 Wires into Claude Code hooks; switches faces in under a second. Setup in
 [`apps/clauddy/README.md`](apps/clauddy/README.md).
 
+### Demo
+
+<div align="center">
+<video src="https://github.com/user-attachments/assets/10e28ac0-6b52-4fe1-a286-0b04e1de349d" controls width="220" controls muted loop playsinline></video>
+</div>
 ---
 
 ## The toolkit
