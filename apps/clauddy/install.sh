@@ -124,6 +124,22 @@ clauddy_require_python_pillow
 clauddy_ensure_dv_app
 
 cat <<'EOF'
+!! Before continuing:
+  - Close the official Divoom app on your phone (force-quit, not just background).
+  - Disconnect Bluetooth from the MiniToo on your phone (Settings -> Bluetooth ->
+    tap the (i) next to the MiniToo -> "Disconnect").
+  The MiniToo accepts only one client at a time. If the phone is still holding
+  the Bluetooth channel, this installer cannot connect and will fail.
+
+EOF
+
+read -r -p "Phone disconnected and Divoom app closed? [y/N] " confirm
+case "$confirm" in
+  y|Y|yes|Yes|YES) ;;
+  *) clauddy_die "Aborted. Disconnect the phone and re-run install.sh." ;;
+esac
+
+cat <<'EOF'
 Divoom account disclaimer:
   - The installer asks for your Divoom login only to discover the three custom
     ClockIds and to persist frame/style settings through Divoom's official API.

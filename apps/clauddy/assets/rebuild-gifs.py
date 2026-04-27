@@ -33,13 +33,17 @@ def rebuild(gif: Path) -> None:
 
     rgb_frames: list[Image.Image] = []
     for f in ImageSequence.Iterator(im):
-        r = f.convert("RGB")
-        px = r.load()
-        for y in range(r.height):
-            for x in range(r.width):
+        # composite transparent pixels onto the canonical background so frames
+        # with alpha (Aseprite's default export) don't render true-black holes
+        rgba = f.convert("RGBA")
+        bg = Image.new("RGBA", rgba.size, BG_CANON + (255,))
+        composited = Image.alpha_composite(bg, rgba).convert("RGB")
+        px = composited.load()
+        for y in range(composited.height):
+            for x in range(composited.width):
                 if px[x, y] in SNAP:
                     px[x, y] = BG_CANON
-        rgb_frames.append(r.copy())
+        rgb_frames.append(composited.copy())
 
     # one master palette from the union of all frames
     big = Image.new("RGB", (rgb_frames[0].width, sum(f.height for f in rgb_frames)))
