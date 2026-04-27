@@ -13,6 +13,12 @@ chilling.
 | :---: | :---: | :---: |
 | ![working](apps/clauddy/assets/working.gif) | ![alerting](apps/clauddy/assets/alerting.gif) | ![chilling](apps/clauddy/assets/chilling.gif) |
 
+```
+./apps/clauddy/set-clauddy-state.sh working
+./apps/clauddy/set-clauddy-state.sh alerting
+./apps/clauddy/set-clauddy-state.sh chilling
+```
+
 Wires into Claude Code hooks; switches faces in under a second. Setup in
 [`apps/clauddy/README.md`](apps/clauddy/README.md).
 
