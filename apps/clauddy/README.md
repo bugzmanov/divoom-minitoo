@@ -134,6 +134,9 @@ so multiple Claude windows do not clobber each other (see next section).
     "UserPromptSubmit": [
       { "hooks": [ { "type": "command", "command": "clauddy-hook.sh working" } ] }
     ],
+    "PreToolUse": [
+      { "hooks": [ { "type": "command", "command": "clauddy-hook.sh working" } ] }
+    ],
     "Notification": [
       { "hooks": [ { "type": "command", "command": "clauddy-hook.sh alerting" } ] }
     ],
@@ -147,6 +150,7 @@ so multiple Claude windows do not clobber each other (see next section).
 Mapping:
 
 - `UserPromptSubmit` → `working` (Claude started the turn)
+- `PreToolUse` → `working` (Claude is actively using tools — clears an alert when Claude resumes work after a notification)
 - `Notification` → `alerting` (permission prompt or idle waiting on you)
 - `Stop` → `chilling` (Claude finished the turn)
 
