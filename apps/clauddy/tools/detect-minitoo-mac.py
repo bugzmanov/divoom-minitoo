@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Best-effort MiniToo Bluetooth MAC detector for macOS."""
+"""Best-effort Divoom display-device Bluetooth MAC detector for macOS.
+
+Recognizes the Jieli-SoC Divoom speakers that share the MiniToo firmware/
+protocol stack. Extend SUPPORTED_DEVICE_TOKENS to add more variants once
+they have been verified end-to-end.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +17,8 @@ from collections.abc import Iterator
 
 MAC_RE = re.compile(r"(?i)(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}")
 
+SUPPORTED_DEVICE_TOKENS = ("minitoo", "tiivoo")
+
 
 def normalize_mac(value: str) -> str:
     return value.replace("-", ":").upper()
@@ -21,7 +28,7 @@ def is_minitoo_name(value: object) -> bool:
     if not isinstance(value, str):
         return False
     normalized = value.lower().replace("-", " ")
-    return "minitoo" in normalized
+    return any(token in normalized for token in SUPPORTED_DEVICE_TOKENS)
 
 
 def strings_in(value: object) -> Iterator[str]:
@@ -42,7 +49,7 @@ def add_candidate(
     source: str,
 ) -> None:
     normalized = normalize_mac(mac)
-    display_name = name.strip() if name else "Divoom MiniToo"
+    display_name = name.strip() if name else "Divoom display device"
     if normalized not in candidates:
         candidates[normalized] = (display_name, source)
 

@@ -23,8 +23,9 @@ usage() {
   cat <<EOF
 Usage: ./install.sh [--mac <bluetooth-mac>] [--device-id <id>] [--email <divoom-login>] [--config <path>]
 
-Uploads the three bundled Clauddy GIFs into MiniToo custom faces and writes a
-local config for set-clauddy-state.sh.
+Uploads the three bundled Clauddy GIFs into the device's custom faces and
+writes a local config for set-clauddy-state.sh. Supports any compatible
+Divoom display speaker (MiniToo, Tiivoo 2, ...).
 EOF
 }
 
@@ -35,23 +36,23 @@ choose_detected_mac() {
   count="$(grep -c . "$candidates_file" 2>/dev/null || true)"
   case "$count" in
     0)
-      clauddy_note "No paired MiniToo was found automatically."
+      clauddy_note "No paired Divoom display device was found automatically."
       return 1
       ;;
     1)
       IFS=$'\t' read -r detected_mac detected_name detected_source < "$candidates_file"
       mac="$detected_mac"
-      clauddy_note "Found paired MiniToo: $detected_name ($mac via $detected_source)"
+      clauddy_note "Found paired Divoom device: $detected_name ($mac via $detected_source)"
       return 0
       ;;
     *)
-      clauddy_note "Found multiple paired MiniToo devices:"
+      clauddy_note "Found multiple paired Divoom devices:"
       local n=1
       while IFS=$'\t' read -r detected_mac detected_name detected_source; do
         printf '  %s. %s (%s via %s)\n' "$n" "$detected_name" "$detected_mac" "$detected_source" >&2
         n=$((n + 1))
       done < "$candidates_file"
-      printf 'Choose MiniToo number, or press Enter to type the MAC manually: '
+      printf 'Choose device number, or press Enter to type the MAC manually: '
       IFS= read -r choice
       case "$choice" in
         ''|*[!0-9]*)
@@ -67,7 +68,7 @@ choose_detected_mac() {
 $line
 EOF_CHOICE
           mac="$detected_mac"
-          clauddy_note "Using paired MiniToo: $detected_name ($mac via $detected_source)"
+          clauddy_note "Using paired Divoom device: $detected_name ($mac via $detected_source)"
           return 0
           ;;
       esac
@@ -126,9 +127,9 @@ clauddy_ensure_dv_app
 cat <<'EOF'
 !! Before continuing:
   - Close the official Divoom app on your phone (force-quit, not just background).
-  - Disconnect Bluetooth from the MiniToo on your phone (Settings -> Bluetooth ->
-    tap the (i) next to the MiniToo -> "Disconnect").
-  The MiniToo accepts only one client at a time. If the phone is still holding
+  - Disconnect Bluetooth from your Divoom device on your phone (Settings ->
+    Bluetooth -> tap the (i) next to the device -> "Disconnect").
+  The device accepts only one client at a time. If the phone is still holding
   the Bluetooth channel, this installer cannot connect and will fail.
 
 EOF
@@ -153,19 +154,19 @@ if [ -z "$mac" ]; then
   existing_mac="$(clauddy_config_get "$config" CLAUDDY_MINITOO_MAC 2>/dev/null || true)"
   if [ -n "$existing_mac" ]; then
     mac="$existing_mac"
-    clauddy_note "Using MiniToo Bluetooth MAC from existing config: $mac"
+    clauddy_note "Using Divoom Bluetooth MAC from existing config: $mac"
   else
     cached_mac="$(clauddy_config_get "$detected_config" CLAUDDY_MINITOO_MAC 2>/dev/null || true)"
     if [ -n "$cached_mac" ]; then
       mac="$cached_mac"
-      clauddy_note "Using MiniToo Bluetooth MAC from detection cache: $mac"
+      clauddy_note "Using Divoom Bluetooth MAC from detection cache: $mac"
     fi
   fi
 fi
 
 if [ -z "$mac" ]; then
-  clauddy_note "Looking for a paired MiniToo in macOS Bluetooth devices..."
-  candidates_file="$(mktemp "${TMPDIR:-/tmp}/clauddy-minitoo-macs.XXXXXX")"
+  clauddy_note "Looking for a paired Divoom display device in macOS Bluetooth..."
+  candidates_file="$(mktemp "${TMPDIR:-/tmp}/clauddy-device-macs.XXXXXX")"
   clauddy_detect_minitoo_macs > "$candidates_file" 2>/dev/null || true
   choose_detected_mac "$candidates_file" || true
   rm -f "$candidates_file"
@@ -173,10 +174,11 @@ fi
 
 if [ -z "$mac" ]; then
   cat >&2 <<'EOF'
-Pair the MiniToo in macOS System Settings > Bluetooth, then enter its Bluetooth
-MAC address. It is usually shown as the device address for "Divoom MiniToo".
+Pair your Divoom display speaker in macOS System Settings > Bluetooth, then
+enter its Bluetooth MAC address. The device shows up as "Divoom MiniToo",
+"Divoom Tiivoo", or similar.
 EOF
-  printf 'MiniToo Bluetooth MAC address: '
+  printf 'Bluetooth MAC address: '
   IFS= read -r mac
 fi
 mac="$(clauddy_normalize_mac "$mac")"
@@ -187,12 +189,12 @@ if [ -z "$device_id" ]; then
   existing_device_id="$(clauddy_config_get "$config" CLAUDDY_DEVICE_ID 2>/dev/null || true)"
   if [ -n "$existing_device_id" ]; then
     device_id="$existing_device_id"
-    clauddy_note "Using MiniToo DeviceId from existing config: $device_id"
+    clauddy_note "Using DeviceId from existing config: $device_id"
   else
     cached_device_id="$(clauddy_config_get "$detected_config" CLAUDDY_DEVICE_ID 2>/dev/null || true)"
     if [ -n "$cached_device_id" ]; then
       device_id="$cached_device_id"
-      clauddy_note "Using MiniToo DeviceId from detection cache: $device_id"
+      clauddy_note "Using DeviceId from detection cache: $device_id"
     fi
   fi
 fi
@@ -201,7 +203,7 @@ fi
 clauddy_note "Checking Bluetooth connection and trying to detect DeviceId..."
 detected_device_id=""
 if ! detected_device_id="$(clauddy_check_connection "$mac")"; then
-  clauddy_die "Bluetooth connection check failed. Connect the MiniToo, then re-run install.sh."
+  clauddy_die "Bluetooth connection check failed. Connect the device, then re-run install.sh."
 fi
 
 if [ -n "$detected_device_id" ] && ! clauddy_is_device_id "$detected_device_id"; then
@@ -218,14 +220,14 @@ fi
 
 if [ -z "$device_id" ]; then
   cat >&2 <<'EOF'
-Could not auto-detect MiniToo DeviceId over Bluetooth.
+Could not auto-detect DeviceId over Bluetooth.
 If you have a previous Clauddy config, use that CLAUDDY_DEVICE_ID value; otherwise
-make sure the MiniToo is awake, disconnected from the phone app, and re-run.
+make sure the device is awake, disconnected from the phone app, and re-run.
 EOF
-  printf 'MiniToo DeviceId: '
+  printf 'DeviceId: '
   IFS= read -r device_id
 fi
-[ -n "$device_id" ] || clauddy_die "DeviceId is required. Re-run after the MiniToo is connected over Bluetooth."
+[ -n "$device_id" ] || clauddy_die "DeviceId is required. Re-run after the device is connected over Bluetooth."
 clauddy_is_device_id "$device_id" || clauddy_die "invalid DeviceId: $device_id"
 
 if clauddy_write_detected_config "$detected_config" "$mac" "$device_id"; then

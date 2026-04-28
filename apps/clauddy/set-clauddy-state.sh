@@ -23,7 +23,7 @@ usage() {
   cat <<EOF
 Usage: set-clauddy-state.sh <working|chilling|alerting> [--config <path>] [--stop-after]
 
-Switches the MiniToo to a preloaded Clauddy custom face.
+Switches the Divoom display device to a preloaded Clauddy custom face.
 EOF
 }
 
@@ -79,7 +79,7 @@ clauddy_load_config "$config"
 started=0
 if ! clauddy_daemon_running; then
   started=1
-  clauddy_note "Bluetooth helper is not running; starting it for $CLAUDDY_MINITOO_MAC..."
+  clauddy_note "Bluetooth helper is not running; starting it for device at $CLAUDDY_MINITOO_MAC..."
   clauddy_start_daemon "$CLAUDDY_MINITOO_MAC" || exit 1
 fi
 

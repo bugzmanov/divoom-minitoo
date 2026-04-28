@@ -129,10 +129,10 @@ clauddy_clear_stale_fifo() {
 
 clauddy_bluetooth_help() {
   cat >&2 <<EOF
-Could not connect to the MiniToo over Bluetooth.
+Could not connect to the Divoom display device over Bluetooth.
 
 Check:
-  1. MiniToo is powered on and awake.
+  1. Device is powered on and awake.
   2. It is paired in macOS System Settings > Bluetooth.
   3. The Divoom phone app is not currently connected to the device.
   4. The Bluetooth MAC address in the Clauddy config is correct.
@@ -307,7 +307,7 @@ clauddy_upload_custom() {
   if ! clauddy_wait_for_upload_ack 45; then
     clauddy_bluetooth_help
     clauddy_stop_daemon
-    clauddy_die "timed out waiting for MiniToo to ACK $state upload."
+    clauddy_die "timed out waiting for device to ACK $state upload."
   fi
   clauddy_send_json "$(clauddy_style_json "$clock_id" "$style_id" "$device_id")"
   clauddy_stop_daemon
