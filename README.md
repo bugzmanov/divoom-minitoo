@@ -85,7 +85,9 @@ device actually does. Then `core/` is your library.
 
 ## Status
 
-- **Device:** Divoom MiniToo, firmware 2.4.0, 160×128 display.
+- **Device:** Divoom MiniToo, firmware 2.4.0, 160×128 display. The Divoom
+  Tiivoo 2 (BT-advertised as `Divoom Tiivoo 2-Audio`) ships the same Jieli
+  firmware and is protocol-identical — see `FINDINGS.md` §1a.
 - **Host:** macOS only. Uses `IOBluetooth` for Classic RFCOMM. Linux / Windows
   ports would need a different transport binary.
 - **Maturity:** working draft. The agent-status path (instant face switching

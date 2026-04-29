@@ -19,6 +19,17 @@ Status: **working draft**. Reflects what's been verified against a real Minitoo 
 
 Two identical `JL_SPP` records show up on SDP: one on RFCOMM **channel 1**, one on **channel 10**. Both accept the Divoom protocol; the mobile app uses `createRfcommSocketToServiceRecord(UUID)` with the standard SPP UUID `00001101-0000-1000-8000-00805F9B34FB` and picks whichever channel SDP surfaces first.
 
+### 1a. Known-compatible siblings
+
+The same Jieli speaker firmware ships across multiple Divoom display speaker SKUs. All observed members are byte-for-byte protocol-identical at firmware 2.4.0 — same VID/PID, same SDP layout, same RFCOMM channel set, same boot-time JSON sequence (`Channel/SetBrightness`, `Sys/DevUpdateConf`, `Tomato/GetList`, `Channel/DeviceGetMyClock`, `TimePlan/GetPlan`, `Device/GetFileVersion`).
+
+| Marketing name | BT advertised name | Probed | Notes |
+| --- | --- | --- | --- |
+| Divoom MiniToo | `Divoom MiniToo-Audio` | ✅ daily-driver | Original target; everything below is a delta. |
+| Divoom Tiivoo 2 | `Divoom Tiivoo 2-Audio` | ✅ probed 2026-04-28 | Identical fingerprint and JSON-command path. Brightness `0x32` opcode confirmed dimming the panel. Display geometry assumed to be `160×128` based on identical firmware/VID/PID — pending confirmation via custom-face upload. |
+
+If you have another Divoom display speaker that advertises with a `*-Audio` BT name and the same VID/PID, it is overwhelmingly likely to be in this same family. Add the lowercase token to `apps/clauddy/tools/detect-minitoo-mac.py::SUPPORTED_DEVICE_TOKENS` and try it.
+
 ## 2. Transport
 
 - **Classic RFCOMM over SPP** (not BLE / GATT).
