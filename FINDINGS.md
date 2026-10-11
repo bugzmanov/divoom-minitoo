@@ -2018,7 +2018,7 @@ Marked by importance for the library.
 - [ ] Decode the 8-byte keepalive body `4E 6F 62 02 D0 49 41 00` — device ID? Uptime? Sequence?
 - [ ] Why do only `Device/GetStorageStatus` and `WhiteNoise/Get` among many `Get` probes respond? Is there a registry the firmware exposes?
 - [ ] Is there a binary equivalent for `Channel/OnOffScreen`, or is `0xBD 0x2F` already that and the JSON command just wraps it?
-- [ ] Port 1 vs port 10 — any protocol difference? Both accept commands.
+- [x] Port 1 vs port 10 — port 10 opens but only echoes frames back with no visible effect (seen again 2026-09-29 when the phone held port 1); only port 1 gives control. `divoom-send` now uses port 1 only.
 - [ ] What triggers the periodic `Tomato/FocusAction` broadcast even without an active pomodoro? It's emitted every few seconds with static values.
 
 ## 11. Tooling delivered so far

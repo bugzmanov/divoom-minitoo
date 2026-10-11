@@ -12,6 +12,7 @@
 #   ./dv rawfile <path> [delay_ms]     # send many raw frames from one file as one batch
 #   ./dv custom <FileId> <DeviceId> [CustomPageIndex] [CustomId]
 #   ./dv oneshot <MAC> <cmd> <args>   # force one-shot mode regardless of daemon
+#   ./dv drop-link                    # test: close the daemon's RFCOMM link (it reconnects on next command)
 #
 # Examples:
 #   ./dv start "$DIVOOM_MAC"     # or pass the literal MAC, e.g. AA:BB:CC:DD:EE:FF

@@ -134,7 +134,8 @@ Could not connect to the Divoom display device over Bluetooth.
 Check:
   1. Device is powered on and awake.
   2. It is paired in macOS System Settings > Bluetooth.
-  3. The Divoom phone app is not currently connected to the device.
+  3. The Divoom phone app is not currently connected to the device. If you
+     just disconnected it and this still fails, power-cycle the device.
   4. The Bluetooth MAC address in the Clauddy config is correct.
 
 Recent helper log:
