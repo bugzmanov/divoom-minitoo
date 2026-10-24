@@ -18,3 +18,9 @@ __pycache__/
 # Build artifacts
 core/divoom-send.app/
 core/divoom-send
+
+# Windows sender and Clauddy for Windows (.NET)
+core/dv-win/bin/
+core/dv-win/obj/
+apps/clauddy/windows/bin/
+apps/clauddy/windows/obj/

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>clauddy-win</AssemblyName>
+    <RootNamespace>Clauddy</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The transport and face upload live in core/dv-win; they are compiled in rather than referenced
+         so that core stays a plain command-line tool that knows nothing about Claude. -->
+    <Compile Include="..\..\..\core\dv-win\Protocol.cs" Link="core\Protocol.cs" />
+    <Compile Include="..\..\..\core\dv-win\Link.cs" Link="core\Link.cs" />
+    <Compile Include="..\..\..\core\dv-win\Encoder.cs" Link="core\Encoder.cs" />
+    <Compile Include="..\..\..\core\dv-win\Uploader.cs" Link="core\Uploader.cs" />
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The install step uploads these; they travel with the published binary. -->
+    <None Include="..\assets\*.gif" Link="assets\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

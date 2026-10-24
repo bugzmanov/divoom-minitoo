@@ -7,8 +7,10 @@ custom faces:
 - `working`
 - `alerting`
 
-Target platform is macOS. Runtime switching is a small Bluetooth JSON command,
-so it is fast once the three faces have been installed.
+Target platform is macOS; a Windows port lives in [`windows/`](windows/) and is
+described in [`docs/WINDOWS.md`](../../docs/WINDOWS.md). Runtime switching is a
+small Bluetooth JSON command, so it is fast once the three faces have been
+installed.
 
 ## Why this exists
 

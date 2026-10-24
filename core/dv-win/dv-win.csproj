@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- The 10.0.19041 suffix pulls in the WinRT projections (Windows.Devices.Bluetooth). -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>dv-win</AssemblyName>
+    <RootNamespace>DvWin</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- GIF decoding and JPEG encoding for upload-face. -->
+    <PackageReference Include="SkiaSharp" Version="3.116.1" />
+  </ItemGroup>
+
+</Project>

@@ -48,6 +48,8 @@ docs/                  How-to-reproduce notes, onboarding, and the decision log
 core/                  The toolkit. macOS Bluetooth daemon (`dv`), the Swift
                        RFCOMM sender, the eZip native-lib bridge, GIF/JPEG
                        uploaders, and probes used to map the protocol.
+                       `core/dv-win/` is a C# command-line sender for Windows;
+                       `apps/clauddy/windows/` is Clauddy for Windows.
 
 apps/clauddy/          A Claude Code agent-status display: three preloaded GIF
                        faces (chilling / working / alerting) and a one-line
@@ -72,6 +74,11 @@ Pick the path that matches what you want to do.
 **I want to control my MiniToo from the command line.**
 Read [`docs/SETUP.md`](docs/SETUP.md) for pairing and `core/dv` usage.
 
+**I'm on Windows.**
+Read [`docs/WINDOWS.md`](docs/WINDOWS.md) — `core/dv-win` sends commands and
+uploads GIFs to a paired MiniToo, and `apps/clauddy/windows` is Clauddy for
+Windows.
+
 **I want a physical status indicator for Claude Code.**
 Read [`apps/clauddy/README.md`](apps/clauddy/README.md). The installer handles
 pairing, uploads three GIFs into the MiniToo's three custom faces, and wires
@@ -88,8 +95,11 @@ device actually does. Then `core/` is your library.
 - **Device:** Divoom MiniToo, firmware 2.4.0, 160×128 display. The Divoom
   Tiivoo 2 (BT-advertised as `Divoom Tiivoo 2-Audio`) ships the same Jieli
   firmware and is protocol-identical — see `FINDINGS.md` §1a.
-- **Host:** macOS only. Uses `IOBluetooth` for Classic RFCOMM. Linux / Windows
-  ports would need a different transport binary.
+- **Host:** macOS for everything. Uses `IOBluetooth` for Classic RFCOMM.
+  Windows has a command-line sender with custom-face upload (`core/dv-win/`)
+  and Clauddy (`apps/clauddy/windows/`), see
+  [`docs/WINDOWS.md`](docs/WINDOWS.md); the other uploaders and probes don't
+  run there. A Linux port would need its own transport binary.
 - **Maturity:** working draft. The agent-status path (instant face switching
   via `Channel/SetClockSelectId`) is solid and used daily. Other paths
   (live-animation streaming via `0x8B`, photo upload via `0x8D`, ANCS-style
